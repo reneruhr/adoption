@@ -17,6 +17,7 @@ using f32 = float;
 using u32 = std::uint32_t;
 
 const u32 m = 128;
+const u32 n = 1<<26;
 const u32 n_reps = 30;
 #define integrate 0
 
@@ -337,12 +338,7 @@ __global__ void adoption_sampling(vec2* out, u32 n)
 		}
         else
         {
-            if((s=pcg(s)) * 0x1.0p-32f < 1-CUDART_2_OVER_PI_F)
-            {
-                x_cache = x;
-                y_cache = y;
-            }
-            else
+            if((s=pcg(s)) * 0x1.0p-32f < CUDART_2_OVER_PI_F)
             {
                 x = (s=pcg(s)) * 0x1.0p-31f - 1.f;
                 y = (s=pcg(s)) * 0x1.0p-31f - 1.f;
@@ -494,7 +490,6 @@ void kernel_wrapper(kernel_func f, u32 blocks, u32 threads, vec2* data, u32 n)
 }
 
 int main() {
-    u32 n = 1<<26;
     vec2 *in,*out,*res, *res_host;
 
     u32 blockSize = 128;
